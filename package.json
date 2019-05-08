@@ -1,0 +1,29 @@
+{
+  "name": "ada-cloud-hub",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ada-cloud/hub.git"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "ada-util": "^1.0.0-beta.4",
+    "async-exit-hook": "^2.0.1",
+    "cloud-util": "file:../cloud-util",
+    "colors": "^1.3.3",
+    "debug": "^4.1.1",
+    "got": "^9.6.0",
+    "jsonwebtoken": "^8.5.1",
+    "loadbalance": "^0.3.3",
+    "md5": "^2.2.1",
+    "nedb-promise": "^2.0.1",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "quick-encrypt": "^1.0.8"
+  }
+}
