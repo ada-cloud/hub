@@ -1,10 +1,10 @@
 const Port = require("./port");
-const { client } = require("../../lib/message");
-const { PRODUCERMETHODTYPES, SERVERSENDMESSAGETYPES } = require("../../lib/const");
 const api = require("./api");
 const StatePoster = require("./poster");
 const Fuse = require("ada-cloud-util/fuse");
 const Emitter = require("events");
+const { client } = require("../../lib/message");
+const { PRODUCERMETHODTYPES, SERVERSENDMESSAGETYPES } = require("../../lib/const");
 const { RESULTCODE } = require("ada-cloud-util/result/const");
 
 class Client extends Emitter {
@@ -87,10 +87,12 @@ class Client extends Emitter {
                     return Promise.resolve().then(() => ob(message));
                 });
             }, Promise.resolve()).then(() => {
-                if (message.id) {
-                    return new Fuse(() => api.put(new client.ResolveMessage(message.id))).excute();
-                } else {
-                    return Promise.reject('message id is lost...');
+                if (type === SERVERSENDMESSAGETYPES.CONSUMER || type === SERVERSENDMESSAGETYPES.INQUIRE) {
+                    if (message.id) {
+                        return new Fuse(() => api.put(new client.ResolveMessage(message.id))).excute();
+                    } else {
+                        return Promise.reject('message id is lost...');
+                    }
                 }
             });
         }
