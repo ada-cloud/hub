@@ -4,7 +4,7 @@ const { SyncFile, extend } = require("ada-util");
 const configPath = path.resolve(process.cwd(), './cloud-hub.config.js');
 const Server = require("./lib/server");
 const Broker = require("./lib/broker");
-const Verifier = require("cloud-util/verifier");
+const Verifier = require("ada-cloud-util/verifier");
 const { set, get } = require("./lib/register");
 
 class CloudHub {

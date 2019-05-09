@@ -3,8 +3,9 @@ const { client } = require("../../lib/message");
 const { PRODUCERMETHODTYPES, SERVERSENDMESSAGETYPES } = require("../../lib/const");
 const api = require("./api");
 const StatePoster = require("./poster");
-const Fuse = require("cloud-util/fuse");
+const Fuse = require("ada-cloud-util/fuse");
 const Emitter = require("events");
+const { RESULTCODE } = require("ada-cloud-util/result/const");
 
 class Client extends Emitter {
     constructor() {
@@ -86,14 +87,26 @@ class Client extends Emitter {
                     return Promise.resolve().then(() => ob(message));
                 });
             }, Promise.resolve()).then(() => {
-                return new Fuse(() => api.put(new client.ResolveMessage(message.id))).excute();
+                if (message.id) {
+                    return new Fuse(() => api.put(new client.ResolveMessage(message.id))).excute();
+                } else {
+                    return Promise.reject('message id is lost...');
+                }
             });
         }
     }
 
     post({ topic, method, info }) {
         if (!this.port.isDisconnect) {
-            return api.put(new client.ProducerMessage(topic, method, info)).then(data => data.id);
+            return new Promise((resolve, reject) => {
+                return api.put(new client.ProducerMessage(topic, method, info)).then(({ code, data, message }) => {
+                    if (code === RESULTCODE.SUCCESS) {
+                        resolve(data);
+                    } else {
+                        reject(message);
+                    }
+                });
+            });
         } else {
             return Promise.reject('client disconnect');
         }
@@ -107,10 +120,24 @@ class Client extends Emitter {
         }
     }
 
+    postTimmerMessage(topic, triggerTime, info) {
+        if (!this.port.isDisconnect) {
+            return this.post({ topic, method: PRODUCERMETHODTYPES.TIMMER, info: { timmer: triggerTime, data: info } });
+        } else {
+            return Promise.reject('client disconnect');
+        }
+    }
+
     postStateMessage(topic, info) {
         if (!this.port.isDisconnect) {
-            return api.put(new client.StateMessage(topic, info)).then(data => {
-                return new StatePoster(data.id, topic);
+            return new Promise((resolve, reject) => {
+                return api.put(new client.StateMessage(topic, info)).then(({ code, data, message }) => {
+                    if (code === RESULTCODE.SUCCESS) {
+                        resolve(new StatePoster(data, topic));
+                    } else {
+                        reject(message);
+                    }
+                });
             });
         } else {
             return Promise.reject('client disconnect');
@@ -123,7 +150,15 @@ class Client extends Emitter {
 
     postBroadcastMessage(topic, info) {
         if (!this.port.isDisconnect) {
-            return api.put(new client.ClientBroadcastMessage(topic, info)).then(data => data.id);
+            return new Promise((resolve, reject) => {
+                return api.put(new client.ClientBroadcastMessage(topic, info)).then(({ code, data, message }) => {
+                    if (code === RESULTCODE.SUCCESS) {
+                        resolve(data);
+                    } else {
+                        reject(message);
+                    }
+                });
+            });
         } else {
             return Promise.reject('client disconnect');
         }

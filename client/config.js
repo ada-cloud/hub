@@ -2,7 +2,7 @@ require("colors");
 const { SyncFile, extend } = require("ada-util");
 const got = require("got");
 const path = require("path");
-const Verifier = require("cloud-util/verifier");
+const Verifier = require("ada-cloud-util/verifier");
 
 const Config = {
     name: 'test',

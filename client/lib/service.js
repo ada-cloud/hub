@@ -1,5 +1,5 @@
-const { LoadBalance, BalanceTypes } = require("cloud-util/balance");
-const Fuse = require("cloud-util/fuse");
+const { LoadBalance, BalanceTypes } = require("ada-cloud-util/balance");
+const Fuse = require("ada-cloud-util/fuse");
 const api = require("./api");
 
 class RegisterService {

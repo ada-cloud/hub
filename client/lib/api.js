@@ -1,7 +1,7 @@
 const got = require("got");
 const ConfigManager = require("../config");
-const { SERVERPOSTTYPES } = require("../../lib/const");
-const Fuse = require("cloud-util/fuse");
+const Fuse = require("ada-cloud-util/fuse");
+const { RESULTCODE } = require("ada-cloud-util/result/const")
 
 const API = {
     put(message) {
@@ -59,7 +59,7 @@ const API = {
                 return new Promise((resolve, reject) => {
                     return got(url, ops).then(({ body }) => {
                         let { type } = body;
-                        if (type === SERVERPOSTTYPES.NEEDLOGIN) {
+                        if (type === RESULTCODE.NEEDLOGIN) {
                             ConfigManager.getToken().then(token => {
                                 ops.headers['Authorization'] = `Bearer ${token}`;
                                 reject();
@@ -68,8 +68,7 @@ const API = {
                             resolve(body);
                         }
                     }).catch(e => {
-                        console.log(e);
-                        reject();
+                        reject(e);
                     });
                 });
             }, { retryTime }).excute();
