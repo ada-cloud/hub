@@ -12,6 +12,8 @@ class Port extends Emitter {
         this._retry = 0;
         this._disconnect = false;
         this._connected = false;
+        this._stopHandler = null;
+        this._stopPromise = null;
         this._start();
     }
 
@@ -36,6 +38,12 @@ class Port extends Emitter {
     stop() {
         this._disconnect = true;
         this._stop = true;
+        if (!this._stopPromise) {
+            this._stopPromise = new Promise(resolve => {
+                this._stopHandler = resolve;
+            });
+        }
+        return this._stopPromise;
     }
 
     _start() {
@@ -73,6 +81,14 @@ class Port extends Emitter {
                     this.emit('disconnect');
                 }
             });
+        } else {
+            if (this._stopHandler) {
+                let th = this._stopHandler;
+                this._stopHandler = null;
+                this._stopPromise = null;
+                this.emit("stoped");
+                th();
+            }
         }
     }
 }

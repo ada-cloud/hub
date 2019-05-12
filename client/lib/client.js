@@ -29,6 +29,7 @@ class Client extends Emitter {
         this._port.on('disconnect', () => this.emit('disconnect'));
         this._port.on('reconnect', () => this.emit('reconnect'));
         this._port.on('connected', () => this.emit('connected'));
+        this._port.on('stoped', () => this.emit('stoped'));
         this._port.on('message', ({ topic, message }) => {
             this._trigger(topic, message);
             this.emit('message');
@@ -168,8 +169,7 @@ class Client extends Emitter {
 
     quit() {
         if (!this.port.isDisconnect) {
-            this.port.stop();
-            return api.quit();
+            return this.port.stop().then(() => api.quit());
         } else {
             return Promise.reject('client disconnect');
         }
