@@ -37,9 +37,14 @@ class Client extends Emitter {
     }
 
     update() {
-        this._port.stop();
-        this.connect();
-        this.emit('updated');
+        let ps = Promise.resolve();
+        if (this._port) {
+            ps = ps.then(this._port.stop());
+        }
+        return ps.then(() => {
+            this.connect();
+            this.emit('updated');
+        });
     }
 
     observe(topicName, fn) {
