@@ -3,6 +3,7 @@ const { SyncFile, extend } = require("ada-util");
 const got = require("got");
 const path = require("path");
 const Verifier = require("ada-cloud-util/verifier");
+const { debug } = require("./../lib/const");
 
 const Config = {
     name: 'test',
@@ -34,9 +35,8 @@ const ConfigManager = {
     },
     login() {
         if (!this._loginPs) {
-            console.log('[CLOUD-HUB] CLIENT LOGIN'.yellow);
             let { host, protocol, name, port, username, password, cloudHub } = Config;
-            console.log('LOGIN:',name,host,port);
+            debug(`client login: ${name},${host},${port}`);
             this._loginPs = new Promise((resolve, reject) => {
                 return got(`${cloudHub}/login`, {
                     body: { username, password: Verifier.getPassword(password), host, protocol, name, port },
