@@ -14,6 +14,7 @@ class Port extends Emitter {
         this._connected = false;
         this._stopHandler = null;
         this._stopPromise = null;
+        this._requestPromise = null;
         this._start();
     }
 
@@ -42,13 +43,15 @@ class Port extends Emitter {
             this._stopPromise = new Promise(resolve => {
                 this._stopHandler = resolve;
             });
+            this._requestPromise.abort();
         }
         return this._stopPromise;
     }
 
     _start() {
         if (!this._stop) {
-            api.get(this.topic).then(data => {
+            this._requestPromise = api.get(this.topic);
+            this._requestPromise.then(data => {
                 if (!this._connected) {
                     this._connected = true;
                     this.emit('connected');
@@ -81,6 +84,7 @@ class Port extends Emitter {
                     this.emit('disconnect');
                 }
             });
+            return this._requestPromise;
         } else {
             if (this._stopHandler) {
                 let th = this._stopHandler;
