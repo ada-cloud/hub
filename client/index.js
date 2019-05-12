@@ -47,12 +47,9 @@ const ClientManager = {
 
 exitHook(callback => {
     if (client) {
-        client.quit().then(() => callback());
-    }
-});
-exitHook.uncaughtExceptionHandler((err, callback) => {
-    if (client) {
-        client.quit().then(() => callback());
+        client.quit().then(() => callback()).catch(() => callback());
+    } else {
+        callback();
     }
 });
 
