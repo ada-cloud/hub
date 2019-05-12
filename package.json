@@ -11,7 +11,7 @@
   "author": "WangJinliang(hou80houzhu)",
   "license": "Apache-2.0",
   "dependencies": {
-    "ada-cloud-util": "0.0.1",
+    "ada-cloud-util": "0.0.3",
     "ada-util": "^1.0.0-beta.4",
     "async-exit-hook": "^2.0.1",
     "colors": "^1.3.3",
