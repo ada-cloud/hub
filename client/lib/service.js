@@ -1,6 +1,7 @@
 const { LoadBalance, BalanceTypes } = require("ada-cloud-util/balance");
 const Fuse = require("ada-cloud-util/fuse");
 const api = require("./api");
+const { debug } = require("./../../lib/const");
 
 class RegisterService {
     constructor(client) {
@@ -51,14 +52,17 @@ class RegisterService {
     }
 
     post(path, data = {}, ops = {}) {
+        debug(`service.post:${path}`);
         return this._excute(path, data, 'json', ops);
     }
 
     postForm(path, data = {}, ops = {}) {
+        debug(`service.postForm:${path}`);
         return this._excute(path, data, 'form', ops);
     }
 
     get(path, data = {}, ops = {}) {
+        debug(`service.get:${path}`);
         return this._excute(path, data, 'query', ops);
     }
 }
