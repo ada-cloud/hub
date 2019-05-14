@@ -1,13 +1,14 @@
 const Koa = require("koa");
 const path = require("path");
 const Client = require("./../client");
-const { SyncFile } = require("ada-util");
 const PublicVerifier = require("ada-cloud-util/verifier/public");
 const Result = require("ada-cloud-util/result");
-const {debug}=require("./../lib/const");
+const { SyncFile } = require("ada-util");
+const { debug } = require("./../lib/const");
 const configPath = path.resolve(process.cwd(), './app.config.json');
+const { Boost, Service } = require("ada-cloud-util/boost");
 
-class CloudKoa extends Koa {
+class Server extends Koa {
     constructor() {
         super();
         let fileConfig = {};
@@ -21,7 +22,8 @@ class CloudKoa extends Koa {
             port: '',
             cloudHub: 'http://localhost:6080',
             username: 'test',
-            password: '123456'
+            password: '123456',
+            source: './src'
         }, fileConfig);
     }
 
@@ -33,7 +35,13 @@ class CloudKoa extends Koa {
         throw Error('[ADA-CLOUD] listen() not support,use startup() instead');
     }
 
-    getRemoteConfigInfo(service) { }
+    getRemoteConfigInfo(service) {
+        return {};
+    }
+
+    getDatabaseConfigure() {
+        return {};
+    }
 
     startup(initialize) {
         return new Promise((resolve, reject) => {
@@ -47,6 +55,14 @@ class CloudKoa extends Koa {
                 if (initialize) {
                     ps = ps.then(() => Promise.resolve().then(() => initialize(this)));
                 }
+                ps = ps.then(() => {
+                    this.context.Service = Service;
+                    return Boost.boot({
+                        source: path.resolve(process.cwd(), this.config.source),
+                        database: this.getDatabaseConfigure(),
+                        server: this
+                    });
+                });
                 return ps.then(() => {
                     super.listen(this.config.port, (err) => {
                         if (!err) {
@@ -54,6 +70,7 @@ class CloudKoa extends Koa {
                                 client.watch('cloud-config-change', () => {
                                     Promise.resolve().then(() => this.getRemoteConfigInfo(service)).then(config => {
                                         Object.assign(this.config, config || {});
+                                        Boost.updateDatabase(this.getDatabaseConfigure());
                                         this.emit('configchange');
                                     });
                                 });
@@ -76,4 +93,4 @@ class CloudKoa extends Koa {
     }
 }
 
-module.exports = CloudKoa;
+module.exports = Server;
