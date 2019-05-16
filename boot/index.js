@@ -2,11 +2,10 @@ const Koa = require("koa");
 const path = require("path");
 const Client = require("./../client");
 const PublicVerifier = require("ada-cloud-util/verifier/public");
-const Result = require("ada-cloud-util/result");
 const { SyncFile } = require("ada-util");
 const { debug } = require("./../lib/const");
 const configPath = path.resolve(process.cwd(), './app.config.json');
-const { Boost, Service } = require("ada-cloud-util/boost");
+const { Boost } = require("ada-cloud-util/boost");
 
 class Server extends Koa {
     constructor() {
@@ -39,7 +38,7 @@ class Server extends Koa {
         return {};
     }
 
-    getDatabaseConfigure() {
+    getDatabaseOption(datasourceName) {
         return {};
     }
 
@@ -56,10 +55,8 @@ class Server extends Koa {
                     ps = ps.then(() => Promise.resolve().then(() => initialize(this)));
                 }
                 ps = ps.then(() => {
-                    this.context.Service = Service;
                     return Boost.boot({
                         source: path.resolve(process.cwd(), this.config.source),
-                        database: this.getDatabaseConfigure(),
                         server: this
                     });
                 });
@@ -79,7 +76,6 @@ class Server extends Koa {
                                 this.context.service = service;
                                 this.context.booster = booter;
                                 this.context.config = this.config;
-                                this.context.result = Result;
                                 this.emit('started', this);
                                 resolve(this);
                             });

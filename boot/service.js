@@ -1,9 +1,9 @@
 const path = require("path");
 const Client = require("./../client");
 const { SyncFile } = require("ada-util");
-const Result = require("ada-cloud-util/result");
 const configPath = path.resolve(process.cwd(), './app.config.json');
 const EventEmiter = require("events");
+const { Boost } = require("ada-cloud-util/boost");
 
 class CloudService extends EventEmiter {
     constructor() {
@@ -28,7 +28,13 @@ class CloudService extends EventEmiter {
         return this._config;
     }
 
-    getRemoteConfigInfo(service) { }
+    getRemoteConfigInfo(service) {
+        return {};
+    }
+
+    getDatabaseOption(datasourceName) {
+        return {};
+    }
 
     startup(initialize) {
         return new Promise((resolve, reject) => {
@@ -39,8 +45,14 @@ class CloudService extends EventEmiter {
                 this.emit('beforestart');
                 let ps = Promise.resolve();
                 if (initialize) {
-                    ps = ps.then(Promise.resolve().then(() => initialize(this)));
+                    ps = ps.then(() => Promise.resolve().then(() => initialize(this)));
                 }
+                ps = ps.then(() => {
+                    return Boost.boot({
+                        source: path.resolve(process.cwd(), this.config.source),
+                        server: this
+                    });
+                });
                 return ps.then(() => {
                     return Client.start(this.config).then(({ client, service, booter }) => {
                         client.watch('cloud-config-change', () => {
@@ -53,7 +65,6 @@ class CloudService extends EventEmiter {
                         this.context.service = service;
                         this.context.booster = booter;
                         this.context.config = this.config;
-                        this.context.result = Result;
                         this.emit('started', this);
                         resolve(this);
                     });
