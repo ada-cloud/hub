@@ -21,18 +21,23 @@ class CloudService extends EventEmiter {
             username: 'test',
             password: '123456'
         }, fileConfig);
-        this.context = {};
+        this._channel = null;
+        this._service = null;
     }
 
     get config() {
         return this._config;
     }
 
-    getRemoteConfigInfo(service) {
-        return {};
+    get channel() {
+        return this._channel;
     }
 
-    getDatabaseOption(datasourceName) {
+    get service() {
+        return this._service;
+    }
+
+    getRemoteConfigInfo(service) {
         return {};
     }
 
@@ -54,17 +59,15 @@ class CloudService extends EventEmiter {
                     });
                 });
                 return ps.then(() => {
-                    return Client.start(this.config).then(({ client, service, booter }) => {
+                    return Client.start(this.config).then(({ client, service }) => {
                         client.watch('cloud-config-change', () => {
                             Promise.resolve().then(() => this.getRemoteConfigInfo(service)).then(config => {
                                 Object.assign(this.config, config || {});
                                 this.emit('configchange');
                             });
                         });
-                        this.context.channel = client;
-                        this.context.service = service;
-                        this.context.booster = booter;
-                        this.context.config = this.config;
+                        this._channel = client;
+                        this._service = service;
                         this.emit('started', this);
                         resolve(this);
                     });

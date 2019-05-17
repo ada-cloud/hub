@@ -60,7 +60,7 @@ class Server extends Koa {
                         server: this
                     });
                 });
-                return ps.then(() => {
+                return ps.then((BoostContext) => {
                     super.listen(this.config.port, (err) => {
                         if (!err) {
                             return Client.start(this.config).then(({ client, service, booter }) => {
@@ -71,11 +71,11 @@ class Server extends Koa {
                                         this.emit('configchange');
                                     });
                                 });
-                                this.context.publicVerifier = new PublicVerifier(booter.getPublicKey());
-                                this.context.channel = client;
-                                this.context.service = service;
-                                this.context.booster = booter;
-                                this.context.config = this.config;
+                                BoostContext.setContextInfo({
+                                    serviceVerifier: new PublicVerifier(booter.getPublicKey()),
+                                    channel: client,
+                                    service
+                                });
                                 this.emit('started', this);
                                 resolve(this);
                             });
