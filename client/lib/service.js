@@ -51,19 +51,29 @@ class RegisterService {
         }, { retryTime }).excute();
     }
 
+    _parseResult(r) {
+        if (r[0] === '[' || r[0] === '{') {
+            try {
+                r = JSON.parse(r);
+            } catch (e) {
+            }
+        }
+        return r;
+    }
+
     post(path, data = {}, ops = {}) {
         debug(`service.post:${path}`);
-        return this._excute(path, data, 'json', ops);
+        return this._excute(path, data, 'json', ops).then(r => this._parseResult(r));
     }
 
     postForm(path, data = {}, ops = {}) {
         debug(`service.postForm:${path}`);
-        return this._excute(path, data, 'form', ops);
+        return this._excute(path, data, 'form', ops).then(r => this._parseResult(r));
     }
 
     get(path, data = {}, ops = {}) {
         debug(`service.get:${path}`);
-        return this._excute(path, data, 'query', ops);
+        return this._excute(path, data, 'query', ops).then(r => this._parseResult(r));
     }
 }
 
